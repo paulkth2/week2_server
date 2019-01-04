@@ -18,19 +18,19 @@ db.once('open', function(){
 
 mongoose.connect('mongodb://localhost/mongodb_tutorial');
 
-// DEFINE MODEL
-var Book = require('./models/book');
-
 // [CONFIGURE APP TO USE bodyParser]
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+
+// DEFINE MODEL
+var User = require('./models/user');
 
 // [CONFIGURE SERVER PORT]
 
 var port = process.env.PORT || 80;
 
 // [CONFIGURE ROUTER]
-var router = require('./routes')(app, Book);
+var router = require('./routes')(app, User);
 
 // [RUN SERVER]
 var server = app.listen(port, function(){
