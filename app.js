@@ -105,7 +105,7 @@ app.get('/upload', function(req, res){
 app.post('/upload', upload.single('userfile'), function(req, res){
   res.set('Uploaded : '+ req.file);
 })
-*/
+
 app.post(
   "/upload",
   multer({
@@ -158,7 +158,7 @@ app.post('/register',(request, response, next) => {
             response.json('Email already exists');
             console.log('Email already exists');
          } else {
-            Login.insertOne(insertJson, function(error, res){
+            Login.create(insertJson, function(error, res){
                   response.json('Registration success');
                   console.log('Registration success');
                })
