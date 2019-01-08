@@ -11,7 +11,8 @@ var userSchema = new Schema({
     email: String,
     gender: String,
     bloodGroup: String,
-    education: String
+    education: String,
+    loginEmail: String
 });
 
 module.exports = mongoose.model('user', userSchema);

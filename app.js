@@ -102,9 +102,9 @@ app.get('/upload', function(req, res){
 
 
 
-app.post('/upload', upload.single('userfile'), function(req, res){
-  res.set('Uploaded : '+ req.file);
-})
+//app.post('/upload', upload.single('userfile'), function(req, res){
+//  res.set('Uploaded : '+ req.file);
+//})
 
 app.post(
   "/upload",
@@ -133,6 +133,7 @@ app.get('/uploads/:upload', function (req, res){
 var User = require('./models/user');
 var Image = require('./models/image');
 var Login = require('./models/login');
+var Trip = require('./models/trip');
 
 //Registration
 app.post('/register',(request, response, next) => {
@@ -184,10 +185,10 @@ app.post('/login', (request, response, next) => {
                   var hashed_password = checkHashPassword(userPassword, salt).passwordHash;
                   var encrypted_password = user.password;
                   if(hashed_password == encrypted_password) {
-                     response.json('login success');
+                     response.status(200).json('login success');
                      console.log('login success');
                   } else { // wrong password
-                     response.json('wrong password');
+                     response.status(500).json('wrong password');
                      console.log('wrong password');
                   }
                })
@@ -203,8 +204,8 @@ app.get('/api/users', function(req,res){
 });
 
 // GET SINGLE BOOK
-app.get('/api/users/:user_id', function(req, res){
-    User.findOne({_id: req.params.user_id}, function(err, user){
+app.get('/api/users/:loginEmail', function(req, res){
+    User.find({loginEmail: req.params.loginEmail}, function(err, user){
         if(err) return res.status(500).json({error: err});
         if(!user) return res.status(404).json({error: 'user not found'});
         res.json(user);
@@ -220,6 +221,44 @@ app.get('/api/users/name/:name', function(req, res){
     })
 });
 
+app.get('/trips', function(req,res){
+    Trip.find(function(err, users){
+        if(err) return res.status(500).send({error: 'database failure'});
+        res.json(users);
+    })
+});
+
+// CREATE BOOK
+app.post('/trips', function(req, res){
+    var trip = new Trip();
+    trip.country = req.body.country;
+    trip.city = req.body.city;
+    trip.title = req.body.title;
+    trip.contents = req.body.contents;
+    trip.comments = req.body.comments;
+    trip.loginEmail = req.body.loginEmail;
+
+    trip.save(function(err){
+        if(err){
+            console.error(err);
+            res.json({result: 0});
+            return;
+        }
+
+        res.json({result: 1});
+
+    });
+});
+
+app.get('/trips/:country/:city', function(req, res){
+    Trip.find({country: req.params.country, city:req.params.city}, function(err, users){
+        if(err) return res.status(500).json({error: err});
+        if(users.length === 0) return res.status(404).json({error: 'city not found'});
+        res.json(users);
+    })
+});
+
+
 // CREATE BOOK
 app.post('/api/users', function(req, res){
     var user = new User();
@@ -233,6 +272,7 @@ app.post('/api/users', function(req, res){
     user.gender = req.body.gender;
     user.bloodGroup = req.body.bloodGroup;
     user.education = req.body.education;
+    user.loginEmail = req.body.loginEmail;
 
     user.save(function(err){
         if(err){
@@ -270,8 +310,8 @@ app.put('/api/users/:user_id', function(req, res){
 });
 
 // DELETE BOOK
-app.delete('/api/users/:user_id', function(req, res){
-    User.remove({ _id: req.params.user_id }, function(err, output){
+app.delete('/api/users/:user_id/:login_Email', function(req, res){
+    User.remove({ name: req.params.user_id, loginEmail: req.params.login_Email }, function(err, output){
         if(err) return res.status(500).json({ error: "database failure" });
 
         /* ( SINCE DELETE OPERATION IS IDEMPOTENT, NO NEED TO SPECIFY )
